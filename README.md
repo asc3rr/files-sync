@@ -11,7 +11,8 @@ Installation script
 
 ### Response codes
 200 - "OK"
-4XX - Errors
+
+4.. - Errors
 - 401: File transferring error
 - 402: File saving error
 - 403: Unknow command
