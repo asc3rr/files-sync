@@ -3,13 +3,28 @@ import json
 import os
 
 class LoginError(Exception):
+    """Access denied"""
+    pass
+
+class NotConnectedError(Exception):
+    """Client is not connected"""
+    pass
+
+class BadResponseError(Exception):
+    """Response is not expected"""
+    pass
+
+class ErrorCode(Exception):
+    """Response Codes"""
     pass
 
 class Client:
-    def __init__(self, settings):
-        self.host = settings["host"]
-        self.port = settings["port"]
-        self.key = settings["key"]
+    def __init__(self, config):
+        self.host = config["host"]
+        self.port = config["port"]
+        self.key = config["key"]
+
+        self.sync_dir = config["sync_dir"]
 
         self.connection = None
 
@@ -19,23 +34,62 @@ class Client:
 
         conn.send(self.key.encode())
 
-        resp = conn.recv(1024)
+        resp = conn.recv(1024).decode()
 
         if resp == "200":
             self.connection = conn
 
         else:
-            raise LoginError("Login failed.")
+            raise LoginError("Access denied.")
 
-    def send_data(self, data:str):
-        self.connection.send(data.encode())
+    def send_files(self):
+        if self.connection:
+            self.connection.send("FILES".encode())
 
-    def get_response(self):
-        response = self.connection.recv(1024).decode()
+            os.system("zip files *")
 
-        return response
+            self.connection.sendfile(open("files.zip"))
 
-settings = json.load(open("settings.json"))
+            try:
+                resp_code = self.connection.recv(1024).decode()
 
-client = Client(settings)
+                if resp_code[0] == "4":
+                    error_code = []
+                    for i in resp_code:
+                        error_code.append(i)
+
+                    error_code.remove("4")
+
+                    raise ErrorCode("Code: " + error_code)
+
+
+            except:
+                raise BadResponseError()
+
+        else:
+            raise NotConnectedError("Client not connected")
+
+    def get_files(self):
+        if self.connection:
+            self.connection.send("GET".encode())
+
+            zipped_file_conntent = self.connection.recv(1024000000).decode()
+
+            f = open(f"{self.sync_dir}/files.zip", "w")
+            f.write(zipped_file_conntent)
+            f.close()
+
+            os.system("rm *")
+            os.system("rm -rf *")
+
+            os.system("unzip files.zip")
+            os.system("rm files.zip")
+
+        else:
+            raise NotConnectedError("Client not connected")
+
+config = json.load(open("config.json"))
+
+client = Client(config)
+
 client.login()
