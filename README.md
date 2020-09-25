@@ -5,7 +5,7 @@ Files synchronization project, that helps me working on 2 diffrent computers.
 Network model - TCP
 
 Clients authientication with keys:
-    - SHA512
+- SHA512
 
 Installation script
 
