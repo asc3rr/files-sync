@@ -8,7 +8,7 @@ class Server:
     def __init__(self, config):
         self.host = config["host"]
         self.port = config["port"]
-        self.keys = config["key"]
+        self.keys = config["keys"]
 
         self.max_connections = config["max_connections"]
         self.access_log = open(config["access_log"], "w")
@@ -20,6 +20,8 @@ class Server:
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind((self.host, self.port))
         self.server_socket.listen(self.max_connections)
+
+        print(f"Server hosted on {self.host}:{self.port}")
 
     def update_access_log(self, client_ip):
         now = datetime.datetime.now()
@@ -42,7 +44,7 @@ class Server:
 
             self.update_access_log(address)
 
-            given_key = self.server_socket.recv(1024).decode()
+            given_key = client.recv(1024).decode()
 
             is_key_valid = False
 
@@ -54,18 +56,49 @@ class Server:
             if not is_key_valid:
                 client.close()
 
-            client_thread = threading.Thread(target=self.handle_client, args=(client,))
+            client_thread = threading.Thread(target=ClientHandler, args=(client, self.dir))
             client_thread.start()
 
-    def handle_client(self, client):
+class ClientHandler: 
+    def __init__(self, client, sync_dir):
+        self.dir = sync_dir
+        self.client = client
+
         while True:
             command = client.recv(1024).decode()
 
             if command == "FILES":
-                pass
+                self.get_files()
 
             elif command == "GET":
-                pass
+                self.send_zip()
 
             else:
                 client.send("403".encode())
+
+    def get_files(self):
+        #file_data = open(f"{self.dir}files.zip", "wb")
+        file_data = open("test.txt", "wb")
+
+        data = self.client.recv(50)
+        print("File recieving started")
+
+        while data:
+            file_data.write(data)
+            print("Got packet...")
+
+            data = self.client.recv(50)
+
+        print("Transfering file has ended")
+
+        self.client.send("200".encode())
+
+        file_data.close()
+
+config = json.load(open("config.json"))
+
+server = Server(config)
+
+server.server_loop()
+
+ClientHandler
