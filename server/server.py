@@ -100,5 +100,3 @@ config = json.load(open("config.json"))
 server = Server(config)
 
 server.server_loop()
-
-ClientHandler

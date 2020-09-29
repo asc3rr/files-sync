@@ -46,9 +46,20 @@ class Client:
         if self.connection:
             self.connection.send("FILES".encode())
 
-            os.system("zip files *")
+            os.system("zip -r files *")
 
-            self.connection.sendfile(open("files.zip"))
+            file_data = open("files.zip", "rb")
+
+            packet_data = file_data.read(50)
+
+            while packet_data:
+                print("Sending...")
+
+                self.connection.send(packet_data)
+
+                packet_data = file_data.read(50)
+
+            print("Data sent")
 
             try:
                 resp_code = self.connection.recv(1024).decode()
@@ -93,3 +104,4 @@ config = json.load(open("config.json"))
 client = Client(config)
 
 client.login()
+client.send_files()
