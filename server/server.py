@@ -72,7 +72,7 @@ class ClientHandler:
                 self.client.close()
 
             elif command == "GET":
-                self.send_zip()
+                self.send_files()
 
             else:
                 client.send("403".encode())
@@ -95,6 +95,20 @@ class ClientHandler:
         self.client.send("200".encode())
 
         file_data.close()
+
+    def send_files(self):
+        file_data = open("files.zip", "rb")
+
+        packet_data = file_data.read(50)
+
+        while packet_data:
+            print("Sending...")
+
+            self.client.send(packet_data)
+
+            packet_data = file_data.read(50)
+
+        print("Data sent")
 
 config = json.load(open("config.json"))
 

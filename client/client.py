@@ -68,17 +68,20 @@ class Client:
         if self.connection:
             self.connection.send("GET".encode())
 
-            zipped_file_conntent = self.connection.recv(1024000000).decode()
+            file_data = open("files.zip", "wb")
 
-            f = open(f"{self.sync_dir}/files.zip", "w")
-            f.write(zipped_file_conntent)
-            f.close()
+            data = self.connection.recv(50)
+            print("File recieving started")
 
-            os.system("rm *")
-            os.system("rm -rf *")
+            while data:
+                file_data.write(data)
+                print("Got packet...")
 
-            os.system("unzip files.zip")
-            os.system("rm files.zip")
+                data = self.connection.recv(50)
+
+            print("Transfering file has ended")
+
+            file_data.close()
 
         else:
             raise NotConnectedError("Client not connected")
@@ -88,4 +91,4 @@ config = json.load(open("config.json"))
 client = Client(config)
 
 client.login()
-client.send_files()
+client.get_files()
