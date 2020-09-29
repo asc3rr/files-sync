@@ -46,7 +46,7 @@ class Client:
         if self.connection:
             self.connection.send("FILES".encode())
 
-            os.system("zip -r files *")
+            os.system(f"zip -r files {self.sync_dir}*")
 
             file_data = open("files.zip", "rb")
 
@@ -60,22 +60,6 @@ class Client:
                 packet_data = file_data.read(50)
 
             print("Data sent")
-
-            try:
-                resp_code = self.connection.recv(1024).decode()
-
-                if resp_code[0] == "4":
-                    error_code = []
-                    for i in resp_code:
-                        error_code.append(i)
-
-                    error_code.remove("4")
-
-                    raise ErrorCode("Code: " + error_code)
-
-
-            except:
-                raise BadResponseError()
 
         else:
             raise NotConnectedError("Client not connected")

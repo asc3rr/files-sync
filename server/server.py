@@ -11,7 +11,7 @@ class Server:
         self.keys = config["keys"]
 
         self.max_connections = config["max_connections"]
-        self.access_log = open(config["access_log"], "w")
+        self.access_log = open(config["access_log"], "a")
         self.dir = config["dir"]
         
         self.server_socket = None
@@ -34,7 +34,7 @@ class Server:
         minute = now.minute
         second = now.second
 
-        data_to_write = f"{day}.{month}.{year} - {hour}:{minute}:{second} ~ {client_ip}"
+        data_to_write = f"{day}.{month}.{year} - {hour}:{minute}:{second} ~ {client_ip}\n"
 
         self.access_log.write(data_to_write)
 
@@ -69,6 +69,7 @@ class ClientHandler:
 
             if command == "FILES":
                 self.get_files()
+                self.client.close()
 
             elif command == "GET":
                 self.send_zip()
@@ -78,7 +79,7 @@ class ClientHandler:
 
     def get_files(self):
         #file_data = open(f"{self.dir}files.zip", "wb")
-        file_data = open("test.txt", "wb")
+        file_data = open("files.zip", "wb")
 
         data = self.client.recv(50)
         print("File recieving started")
