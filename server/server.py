@@ -81,12 +81,12 @@ class ClientHandler:
         #file_data = open(f"{self.dir}files.zip", "wb")
         file_data = open("files.zip", "wb")
 
-        data = self.client.recv(50)
+        data = self.client.recv(1024)
 
         while data:
             file_data.write(data)
 
-            data = self.client.recv(50)
+            data = self.client.recv(1024)
 
         self.client.send("200".encode())
 
@@ -96,12 +96,12 @@ class ClientHandler:
     def send_files(self):
         file_data = open("files.zip", "rb")
 
-        packet_data = file_data.read(50)
+        packet_data = file_data.read(1024)
 
         while packet_data:
             self.client.send(packet_data)
 
-            packet_data = file_data.read(50)
+            packet_data = file_data.read(1024)
 
         self.client.close()
         file_data.close()

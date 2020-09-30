@@ -70,14 +70,14 @@ class Client:
 
             file_data = open("files.zip", "wb")
 
-            data = self.connection.recv(50)
+            data = self.connection.recv(1024)
             print("File recieving started")
 
             while data:
                 file_data.write(data)
                 print("Got packet...")
 
-                data = self.connection.recv(50)
+                data = self.connection.recv(1024)
 
             print("Transfering file has ended")
 
@@ -91,4 +91,4 @@ config = json.load(open("config.json"))
 client = Client(config)
 
 client.login()
-client.get_files()
+client.send_files()
