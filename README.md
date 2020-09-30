@@ -18,7 +18,3 @@ Installation script
 - 403: Unknow command
 - 404: Bad request
 - 405: Bad response
-
-
-## Installation
-Installation works ONLY on Linux
