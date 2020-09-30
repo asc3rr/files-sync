@@ -82,18 +82,15 @@ class ClientHandler:
         file_data = open("files.zip", "wb")
 
         data = self.client.recv(50)
-        print("File recieving started")
 
         while data:
             file_data.write(data)
-            print("Got packet...")
 
             data = self.client.recv(50)
 
-        print("Transfering file has ended")
-
         self.client.send("200".encode())
 
+        self.client.close()
         file_data.close()
 
     def send_files(self):
@@ -102,13 +99,12 @@ class ClientHandler:
         packet_data = file_data.read(50)
 
         while packet_data:
-            print("Sending...")
-
             self.client.send(packet_data)
 
             packet_data = file_data.read(50)
 
-        print("Data sent")
+        self.client.close()
+        file_data.close()
 
 config = json.load(open("config.json"))
 
