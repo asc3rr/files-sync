@@ -1,5 +1,6 @@
 import socket
 import json
+import sys
 import os
 
 class LoginError(Exception):
@@ -91,4 +92,18 @@ config = json.load(open("config.json"))
 client = Client(config)
 
 client.login()
-client.send_files()
+
+
+try:
+    if sys.argv[1] == "GET":
+        client.get_files()
+
+    elif sys.argv[1] == "SEND":
+        client.send_files()
+
+    else:
+        client.connection.close()
+
+except:
+    print("Give GET or SEND as an argument")
+    client.connection.close()
